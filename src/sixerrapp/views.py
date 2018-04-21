@@ -5,7 +5,7 @@ from .models import Gig, Profile, Pruchase, Review
 
 import braintree
 
-braintree.Configuration.configure(braintree.Environment.Sandbox, merchant_id='5mp4vxjzkpttp7j9', public_key='r2dzxr66g4csj52d', private_key='c9ac37d51de879c4db9ff3ebf5ae1d72')
+braintree.Configuration.configure(braintree.Environment.Sandbox, merchant_id='', public_key='', private_key='')
 
 # Create your views here.
 def home(request):
