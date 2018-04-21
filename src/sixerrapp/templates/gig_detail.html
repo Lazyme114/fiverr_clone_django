@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block page %}
+<div class="row">
+	<div class="col-md-8">
+		<div class="panel panel-default">
+			<div class="panel-body">
+				<h3> {{ gig.title }} </h3>
+				<hr>
+				<img src="/media/{{ gig.photo }}" class="img-responsive center-block">
+			</div>
+		</div>
+
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h4>About this Gig</h4>
+			</div>
+			<div class="panel-body">
+				<p> {{ gig.description }} </p>
+			</div>
+		</div>
+
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h4>Review</h4>
+			</div>
+			{% if show_post_review %}
+				<div class="panel-body">
+					<form method="POST">
+						{%  csrf_token %}
+						<div class="form-group">
+							<textarea name="content" rows="3" class="form-control"></textarea>
+						</div>
+						<div class="form-group">
+							<button class="btn btn-primary" type="submit">Post</button>
+						</div>
+					</form>
+				</div>
+			{% endif %}
+			<ul class="list-group">
+				{% for review in reviews %}
+					<li class="list-group-item">
+						<div class="row">
+							<div class="col-md-2">
+								<img src="{% if review.user.profile %} {{ review.user.profile.avatar }} {% else %} {% static 'img/avatar.png' %} {% endif %}" class="img-circle center-block" height="60" width="60" alt="">
+							</div>
+							<div class="col-md-10">
+								<h4> {{ review.user.username }} </h4>
+								<p>{{ review.content }}</p>
+							</div>
+						</div>
+					</li>
+				{% endfor %}
+			</ul>
+		</div>
+	</div>
+
+	<div class="col-md-4">
+		<div class="panel panel-default">
+			<div class="panel-body">
+				 {% if user and not user.is_anonymous %}
+					<form action="{% url 'create_purchase' %}" method="POST">
+						{% csrf_token %}
+						<div id="payment-form">
+						</div>
+						<input type="hidden" name="gig_id" value="{{ gig.id }}">
+						<button type="submit" class="btn btn-success btn-block" type="button">Order Now ($ {{ gig.price }} )</button>
+					</form>
+					<script src="https://js.braintreegateway.com/v2/braintree.js"></script>
+					<script>
+						$(document).ready(function() {
+							braintree.setup("{{ client_token }}", "dropin", {
+								container: "payment-form",
+								paypal: {
+									singleUse: true,
+									amount: "{{ gig.price }}",
+									currency: 'USD'
+								}
+							})
+						});
+					</script>
+				 {% else %}
+				 	You need to login to order this gig!
+				 {% endif %}
+			</div>
+		</div>
+
+		<div class="panel panel-default">
+			<div class="panel-body">
+
+				<img src="{% if gig.user.profile %} {{ gig.user.profile.avatar }} {% else %} {% static 'img/avatar.png' %} {% endif %}" height="100" width="100" class="img-circle center-block">
+				<a href="{% url 'profile' gig.user.username %}">
+					<h4 class="text-center">{{ gig.user.username }}</h4>
+				</a>
+				<hr>
+				<p> {{ gig.user.profile.about }} </p>
+			</div>
+		</div>
+	</div>
+</div>	
+{% endblock %}
